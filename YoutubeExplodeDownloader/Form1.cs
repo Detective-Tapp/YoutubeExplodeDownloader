@@ -5,10 +5,6 @@ using YoutubeExplode.Common;
 using YoutubeExplode.Videos.Streams;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Converter;
-using System.Diagnostics;
-using System.Net.NetworkInformation;
-using System.Drawing.Imaging;
-using System.IO;
 
 namespace YoutubeExplodeDownloader
 {
@@ -67,11 +63,10 @@ namespace YoutubeExplodeDownloader
             var progress = new Progress<double>(p =>
             {
                 DownloadProgress.Value = Convert.ToInt32(p * 100);
-                var percentage = (p * 100);
-                var percentage2 = Math.Truncate(percentage) / 1;
             }); 
             if (!Directory.GetFiles(PathTxt.Text).Contains($"{PathTxt.Text}\\{title}.mp3"))
                 await youtube.Videos.DownloadAsync(url, $"{PathTxt.Text.ToString()}\\{title}.mp3", progress);
+            
             pictureBox1.Refresh();
             AddCover(title, video);
 
