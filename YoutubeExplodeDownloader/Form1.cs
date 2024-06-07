@@ -14,9 +14,6 @@ namespace YoutubeExplodeDownloader
         YoutubeClient youtube;
         //Cookie cookies = new Cookie();
 
-        string[] illegalChars = new string[] {"#","@","%","{","}","\\","<",">","*",
-                                              "/", "`","|", ":", ";"};
-
         public Form1()
         {
             InitializeComponent();
