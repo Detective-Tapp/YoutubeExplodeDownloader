@@ -21,7 +21,7 @@ namespace YoutubeExplodeDownloader
             youtube = new YoutubeClient();
         }
 
-        private async void GetVideo(string url)
+        private async Task GetVideo(string url)
         {
             DownloadProgress.Value = 0;
             DownloadProgress.Refresh();
@@ -93,7 +93,7 @@ namespace YoutubeExplodeDownloader
             }
             PlaylistProgress.Value = 0;
             PlaylistProgress.Refresh();
-
+            PlaylistLbl.Text = $"{PlaylistProgress.Value}/{PlaylistProgress.Maximum}";
 
             // Get all playlist videos
             var videos = await youtube.Playlists.GetVideosAsync(url);
@@ -102,12 +102,12 @@ namespace YoutubeExplodeDownloader
             PlaylistLbl.Refresh();
             foreach (var video in videos)
             {
-                PlaylistLbl.Text = $"{PlaylistProgress.Value}/{PlaylistProgress.Maximum}";
                 PlaylistLbl.Refresh();
                 PlaylistProgress.PerformStep();
-                GetVideo(video.Url);
+                PlaylistLbl.Text = $"{PlaylistProgress.Value}/{PlaylistProgress.Maximum}";
+                await GetVideo(video.Url);
             }
-            PlaylistLbl.Text = $"{PlaylistProgress.Value}/{PlaylistProgress.Maximum}";
+
             PlaylistLbl.Refresh();
         }
 
