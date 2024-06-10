@@ -38,7 +38,12 @@
             DownloadLbl = new Label();
             PlaylistLbl = new Label();
             UrlLbl = new Label();
+            vScrollBar1 = new VScrollBar();
+            BatchLbl = new Label();
+            label2 = new Label();
+            panel1 = new Panel();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // label1
@@ -130,11 +135,51 @@
             UrlLbl.Text = "Checking Link";
             UrlLbl.Visible = false;
             // 
+            // vScrollBar1
+            // 
+            vScrollBar1.Location = new Point(494, 91);
+            vScrollBar1.Maximum = 8;
+            vScrollBar1.Minimum = -999;
+            vScrollBar1.Name = "vScrollBar1";
+            vScrollBar1.Size = new Size(22, 26);
+            vScrollBar1.TabIndex = 10;
+            vScrollBar1.Value = -1;
+            vScrollBar1.ValueChanged += vScrollBar1_ValueChanged;
+            // 
+            // BatchLbl
+            // 
+            BatchLbl.AutoSize = true;
+            BatchLbl.Location = new Point(2, 4);
+            BatchLbl.Name = "BatchLbl";
+            BatchLbl.Size = new Size(13, 15);
+            BatchLbl.TabIndex = 11;
+            BatchLbl.Text = "1";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(354, 91);
+            label2.Name = "label2";
+            label2.Size = new Size(141, 15);
+            label2.TabIndex = 12;
+            label2.Text = "Simultaneous Downloads";
+            // 
+            // panel1
+            // 
+            panel1.BorderStyle = BorderStyle.FixedSingle;
+            panel1.Controls.Add(BatchLbl);
+            panel1.Location = new Point(518, 92);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(40, 24);
+            panel1.TabIndex = 13;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 333);
+            Controls.Add(label2);
+            Controls.Add(vScrollBar1);
             Controls.Add(UrlLbl);
             Controls.Add(DownloadLbl);
             Controls.Add(PlaylistProgress);
@@ -145,9 +190,12 @@
             Controls.Add(SearchBtn);
             Controls.Add(label1);
             Controls.Add(PlaylistLbl);
+            Controls.Add(panel1);
             Name = "Form1";
             Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -164,5 +212,9 @@
         private Label DownloadLbl;
         private Label PlaylistLbl;
         private Label UrlLbl;
+        private VScrollBar vScrollBar1;
+        private Label BatchLbl;
+        private Label label2;
+        private Panel panel1;
     }
 }
