@@ -2,16 +2,14 @@
 using System.Text.RegularExpressions;
 using YoutubeExplode;
 using YoutubeExplode.Common;
-using YoutubeExplode.Videos.Streams;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Converter;
-using System.Linq;
 
 namespace YoutubeExplodeDownloader
 {
     public partial class Form1 : Form
     {
-
+        private static HttpClient _httpClient = new();
         YoutubeClient youtube;
         //Cookie cookies = new Cookie();
 
@@ -70,19 +68,18 @@ namespace YoutubeExplodeDownloader
             DownloadLbl.Hide();
         }
         private async Task GetVideo(string url)
-        { 
+        {
             var video = await youtube.Videos.GetAsync(url);
             var title = Regex.Replace(video.Title, @"[^a-zA-Z0-9\-]", "");
             if (!Directory.GetFiles(PathTxt.Text).Contains($"{PathTxt.Text}\\{title}.mp3"))
             {
                 await youtube.Videos.DownloadAsync(url, $"{PathTxt.Text}\\{title}.mp3");
-                // This is really stupid, but it is the only way I know to covert from the thumbnail to a System.Image......
-                var pb = new PictureBox();
-                pb.ImageLocation = video.Thumbnails.Where(t => t.Url.EndsWith(".jpg")).GetWithHighestResolution().Url;
-                AddCover(title, video, pb.Image);
-                pb.Dispose();
+                // Bit hard to read but it, gets the highest resolution jpeg from youtube, gets the stream,
+                // then converts the stream into a System.Drawing.Image type, and feeds that into Addcover.
+                AddCover(title, video, Image.FromStream(await _httpClient.GetStreamAsync(video.Thumbnails.Where(t => t.Url.EndsWith(".jpg")).GetWithHighestResolution().Url)));
             }
         }
+
         private void AddCover(string title, Video video, Image image)
         { // add a cover and title in the .mp3 files metadata using TagLib.
             var tfile = TagLib.File.Create($"{PathTxt.Text}\\{title}.mp3");
