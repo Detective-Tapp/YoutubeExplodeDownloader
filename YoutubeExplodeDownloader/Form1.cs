@@ -4,6 +4,7 @@ using YoutubeExplode;
 using YoutubeExplode.Common;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Converter;
+using AngleSharp.Common;
 
 namespace YoutubeExplodeDownloader
 {
@@ -12,6 +13,8 @@ namespace YoutubeExplodeDownloader
         private static HttpClient _httpClient = new();
         YoutubeClient youtube;
         //Cookie cookies = new Cookie();
+
+        List<string> log = new List<string>();
 
         public Form1()
         {
@@ -132,9 +135,11 @@ namespace YoutubeExplodeDownloader
 
             Task[] batch = new Task[int.Parse(BatchLbl.Text)];
 
+            // Show a label giving user feedback.
+            DownloadLbl.Invoke(() => { DownloadLbl.Show(); });
+
             while (PlaylistProgress.Value < PlaylistProgress.Maximum)
-            { // Show a label giving user feedback.
-                DownloadLbl.Invoke(() => { DownloadLbl.Show(); });
+            { 
 
                 if (batch.Length <= PlaylistProgress.Maximum - PlaylistProgress.Value)
                 {
@@ -147,7 +152,7 @@ namespace YoutubeExplodeDownloader
                 else
                 {
                     batch = new Task[(PlaylistProgress.Maximum - PlaylistProgress.Value)];
-                    
+
                     for (int i = 0; i < batch.Length; i++)
                     {
                         batch[i] = Task.Run(() => GetVideo(videos[PlaylistProgress.Value + i].Url));
@@ -155,13 +160,14 @@ namespace YoutubeExplodeDownloader
                     }
                 }
                 // Reset a simple download progress indicator and redraw it. And give it a base value so that it does not look empty :)
-                DownloadProgress.Invoke(() => {
+                DownloadProgress.Invoke(() =>
+                {
                     DownloadProgress.Maximum = batch.Length + 1;
                     DownloadProgress.Value = 0;
                     DownloadProgress.PerformStep();
                     DownloadProgress.Refresh();
                 });
-                
+
                 // Step over batchdownload progress for each completed download.
                 foreach (var item in batch)
                 {
@@ -173,20 +179,43 @@ namespace YoutubeExplodeDownloader
 
                     Task.WaitAny(batch);
                 }
-
-                // Should not be needed cuses of the foreach loop above, but just in case. Can't hurt anyways.
-                Task.WaitAll(batch);
+            
+                try { Task.WaitAll(batch); }
+                catch (Exception ex)
+                {
+                    int count = 0;
+                    foreach (var item in batch)
+                    {
+                        if(item.IsFaulted)
+                        {
+                            log.Add($"Song: {videos[count + PlaylistProgress.Value].Title}\nUrl: " +
+                            $"{videos[count + PlaylistProgress.Value].Url}\n" +
+                            $"{ex.Message}\n");
+                        }
+                        count++;
+                    }
+                }
 
                 // Give the user feedback of the playlists download progress.
-                PlaylistProgress.Invoke(() => {
+                PlaylistProgress.Invoke(() =>
+                {
                     PlaylistProgress.Value += batch.Length;
                     PlaylistProgress.Refresh();
                     PlaylistLbl.Text = $"{PlaylistProgress.Value}/{PlaylistProgress.Maximum}";
                     PlaylistLbl.Refresh();
                 });
+            }
+            // Hide the element cause done downloading
+            DownloadLbl.Invoke(() => { DownloadLbl.Hide(); });
 
-                // Hide the element cause done downloading
-                DownloadLbl.Invoke(() => { DownloadLbl.Hide(); });
+            if (log.Any())
+            {
+                MessageBox.Show($"{log.Count} songs failed to download, see all failed files \n@{PathTxt.Text}\\FailedDownloads.txt");
+                System.IO.File.WriteAllLines($"{PathTxt.Text}\\FailedDownloads.txt", log.ToArray());
+            }
+            else
+            {
+                MessageBox.Show("Finished downloading playlist!");
             }
         }
 
