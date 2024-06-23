@@ -1,2 +1,1 @@
-Ignore messy code,
-fast easy project.
+A simple downloader to download from ze youtubs.
