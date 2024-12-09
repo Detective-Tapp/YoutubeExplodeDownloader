@@ -19,6 +19,11 @@ namespace YoutubeExplodeDownloader
         public Form1()
         {
             InitializeComponent();
+
+            // Saves the files as ID3V2.3 instead of ID3V2.4 cause 2.4 does not show the cover image in mediaplayer.
+            TagLib.Id3v2.Tag.DefaultVersion = 3;
+            TagLib.Id3v2.Tag.ForceDefaultVersion = true;
+
             //youtube = new YoutubeClient(cookies);
             youtube = new YoutubeClient();
         }
@@ -63,10 +68,20 @@ namespace YoutubeExplodeDownloader
             {
                 DownloadProgress.Value = Convert.ToInt32(p * 100);
             });
-            if (!Directory.GetFiles(PathTxt.Text).Contains($"{PathTxt.Text}\\{title}.mp3"))
+            if (FileTypeSelect.Invoke(() => { return FileTypeSelect.SelectedIndex; }) == 0) {
+                if (!Directory.GetFiles(PathTxt.Text).Contains($"{PathTxt.Text}\\{title}.mp3"))
+                {
+                    await youtube.Videos.DownloadAsync(url, $"{PathTxt.Text}\\{title}.mp3", progress);
+                    AddCover(title, video);
+                }
+            }
+            else
             {
-                await youtube.Videos.DownloadAsync(url, $"{PathTxt.Text}\\{title}.mp3", progress);
-                AddCover(title, video);
+                if (!Directory.GetFiles(PathTxt.Text).Contains($"{PathTxt.Text}\\{title}.mp4"))
+                {
+                    await youtube.Videos.DownloadAsync(url, $"{PathTxt.Text}\\{title}.mp4", progress);
+                    AddCover(title, video);
+                }
             }
             DownloadLbl.Hide();
         }
@@ -74,18 +89,47 @@ namespace YoutubeExplodeDownloader
         {
             var video = await youtube.Videos.GetAsync(url);
             var title = Regex.Replace(video.Title, @"[^a-zA-Z0-9\-]", "");
-            if (!Directory.GetFiles(PathTxt.Text).Contains($"{PathTxt.Text}\\{title}.mp3"))
+            /*if (!Directory.GetFiles(PathTxt.Text).Contains($"{PathTxt.Text}\\{title}.mp3"))
             {
                 await youtube.Videos.DownloadAsync(url, $"{PathTxt.Text}\\{title}.mp3");
                 // Bit hard to read but it, gets the highest resolution jpeg from youtube, gets the stream,
                 // then converts the stream into a System.Drawing.Image type, and feeds that into Addcover.
                 AddCover(title, video, Image.FromStream(await _httpClient.GetStreamAsync(video.Thumbnails.Where(t => t.Url.EndsWith(".jpg")).GetWithHighestResolution().Url)));
+            }*/
+            if (FileTypeSelect.Invoke(() => { return FileTypeSelect.SelectedIndex; }) == 0)
+            {
+                if (!Directory.GetFiles(PathTxt.Text).Contains($"{PathTxt.Text}\\{title}.mp3"))
+                {
+                    await youtube.Videos.DownloadAsync(url, $"{PathTxt.Text}\\{title}.mp3");
+                    // Bit hard to read but it, gets the highest resolution jpeg from youtube, gets the stream,
+                    // then converts the stream into a System.Drawing.Image type, and feeds that into Addcover.
+                    AddCover(title, video, Image.FromStream(await _httpClient.GetStreamAsync(video.Thumbnails.Where(t => t.Url.EndsWith(".jpg")).GetWithHighestResolution().Url)));
+                }
+            }
+            else
+            {
+                if (!Directory.GetFiles(PathTxt.Text).Contains($"{PathTxt.Text}\\{title}.mp4"))
+                {
+                    await youtube.Videos.DownloadAsync(url, $"{PathTxt.Text}\\{title}.mp4");
+                    // Bit hard to read but it, gets the highest resolution jpeg from youtube, gets the stream,
+                    // then converts the stream into a System.Drawing.Image type, and feeds that into Addcover.
+                    AddCover(title, video, Image.FromStream(await _httpClient.GetStreamAsync(video.Thumbnails.Where(t => t.Url.EndsWith(".jpg")).GetWithHighestResolution().Url)));
+                }
             }
         }
 
         private void AddCover(string title, Video video, Image image)
         { // add a cover and title in the .mp3 files metadata using TagLib.
-            var tfile = TagLib.File.Create($"{PathTxt.Text}\\{title}.mp3");
+            TagLib.File tfile;
+            if (FileTypeSelect.Invoke(() => { return FileTypeSelect.SelectedIndex; }) == 0)
+            {
+                 tfile = TagLib.File.Create($"{PathTxt.Text}\\{title}.mp3");
+            }
+            else
+            {
+                 tfile = TagLib.File.Create($"{PathTxt.Text}\\{title}.mp4");
+            }
+
             tfile.Tag.Pictures = new IPicture[] { new Picture(new ByteVector((byte[])new ImageConverter().ConvertTo(image, typeof(byte[])))) };
             tfile.Tag.Title = video.Title;
             tfile.Tag.DateTagged = DateTime.Now;
@@ -95,7 +139,16 @@ namespace YoutubeExplodeDownloader
 
         private void AddCover(string title, Video video)
         { // add a cover and title in the .mp3 files metadata using TagLib.
-            var tfile = TagLib.File.Create($"{PathTxt.Text}\\{title}.mp3");
+            TagLib.File tfile;
+            
+            if (FileTypeSelect.Invoke(() => { return FileTypeSelect.SelectedIndex; }) == 0)
+            {
+                tfile = TagLib.File.Create($"{PathTxt.Text}\\{title}.mp3");
+            }
+            else
+            {
+                tfile = TagLib.File.Create($"{PathTxt.Text}\\{title}.mp4");
+            }
             tfile.Tag.Pictures = new IPicture[] { new Picture(new ByteVector((byte[])new ImageConverter().ConvertTo(pictureBox1.Image, typeof(byte[])))) };
             tfile.Tag.Title = video.Title;
             tfile.Tag.DateTagged = DateTime.Now;

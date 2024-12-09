@@ -42,6 +42,8 @@
             BatchLbl = new Label();
             label2 = new Label();
             panel1 = new Panel();
+            FileTypeSelect = new ComboBox();
+            label3 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             panel1.SuspendLayout();
             SuspendLayout();
@@ -173,11 +175,33 @@
             panel1.Size = new Size(40, 24);
             panel1.TabIndex = 13;
             // 
+            // FileTypeSelect
+            // 
+            FileTypeSelect.FormattingEnabled = true;
+            FileTypeSelect.Items.AddRange(new object[] { "   Audio (.Mp3)", "   Video (.Mp4)" });
+            FileTypeSelect.Location = new Point(586, 38);
+            FileTypeSelect.MaxDropDownItems = 2;
+            FileTypeSelect.Name = "FileTypeSelect";
+            FileTypeSelect.Size = new Size(121, 23);
+            FileTypeSelect.TabIndex = 14;
+            FileTypeSelect.SelectedIndex = 0;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(531, 41);
+            label3.Name = "label3";
+            label3.Size = new Size(54, 15);
+            label3.TabIndex = 15;
+            label3.Text = "Filetype :";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 333);
+            ClientSize = new Size(800, 336);
+            Controls.Add(label3);
+            Controls.Add(FileTypeSelect);
             Controls.Add(label2);
             Controls.Add(vScrollBar1);
             Controls.Add(UrlLbl);
@@ -216,5 +240,7 @@
         private Label BatchLbl;
         private Label label2;
         private Panel panel1;
+        private ComboBox FileTypeSelect;
+        private Label label3;
     }
 }
