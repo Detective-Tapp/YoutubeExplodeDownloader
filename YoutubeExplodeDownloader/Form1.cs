@@ -89,13 +89,7 @@ namespace YoutubeExplodeDownloader
         {
             var video = await youtube.Videos.GetAsync(url);
             var title = Regex.Replace(video.Title, @"[^a-zA-Z0-9\-]", "");
-            /*if (!Directory.GetFiles(PathTxt.Text).Contains($"{PathTxt.Text}\\{title}.mp3"))
-            {
-                await youtube.Videos.DownloadAsync(url, $"{PathTxt.Text}\\{title}.mp3");
-                // Bit hard to read but it, gets the highest resolution jpeg from youtube, gets the stream,
-                // then converts the stream into a System.Drawing.Image type, and feeds that into Addcover.
-                AddCover(title, video, Image.FromStream(await _httpClient.GetStreamAsync(video.Thumbnails.Where(t => t.Url.EndsWith(".jpg")).GetWithHighestResolution().Url)));
-            }*/
+
             if (FileTypeSelect.Invoke(() => { return FileTypeSelect.SelectedIndex; }) == 0)
             {
                 if (!Directory.GetFiles(PathTxt.Text).Contains($"{PathTxt.Text}\\{title}.mp3"))
